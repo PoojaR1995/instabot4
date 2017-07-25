@@ -10,12 +10,15 @@ from textblob.sentiments import NaiveBayesAnalyzer
 #Token_Owner :'pooja_bharti_arya'
 ##Sandbox Users(if there account is public) : shiwanipahwa, jahnvee.sharma(public account)
 
+
 '''
 base_url used for every get or post function given by insta API
 
 '''
 
 BASE_URL = 'https://api.instagram.com/v1/'
+
+
 
 
 
@@ -51,36 +54,35 @@ def self_info():
 
 
 
+
+
+
 '''
 b: function for fetching details of another user by using put function which accepts input from the user(mandatory)
-
 '''
 
 def get_user_id(insta_username):
 
-    # these are the url_requests used for fecthing the details of the used id
-    request_url = (BASE_URL + 'users/search?q=%s&access_token=%s') % (insta_username, APP_ACCESS_TOKEN)
+    request_url =(BASE_URL +'users/search?q=%s&access_token=%s') % (insta_username, APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
     user_info = requests.get(request_url).json()
 
-    # this works as a dictonry for saving the details of the user_id
     if user_info['meta']['code'] == 200:
         if len(user_info['data']):
             return user_info['data'][0]['id']
+
         else:
             return None
-
     else:
-        print 'Status code other than 200 received!'
+        print 'Status code other than 200 or 304 received!'
         exit()
 
 
 
 
 
-
 '''
-c: function for fetching details of a user by its username(mandatory)
+#c:function for fetching details of a user by its username(mandatory)
 
 '''
 def get_user_info(insta_username):
@@ -112,8 +114,9 @@ def get_user_info(insta_username):
 
 
 
+
 '''
-d: function for getting our own post
+d: function for getting our own post(mandatory)
 
 '''
 def get_own_post():
@@ -140,8 +143,10 @@ def get_own_post():
 
 
 
+
+
 '''
-e: function for getting a recent post by another user
+e: function for getting a recent post by another user(mandatory)
 
 '''
 def get_user_post(insta_username):
@@ -176,6 +181,7 @@ def get_user_post(insta_username):
 
 
 
+
 '''
 f: function for getting post_id of another user
 
@@ -199,6 +205,7 @@ def get_post_id(insta_username):
     else:
         print 'Status code other than 200 received!'
         exit()
+
 
 
 
@@ -283,56 +290,70 @@ def get_like_list(insta_username):
 
 
 
+
+
 '''
  j: (mandatory objective) getting a list of of media with a particular tag
 
 '''
 
 
-def list_of_hashtags(insta_username):
+def hash_tag():
+    i = 0
+
+    tags = []
+
+    tag_name = []
+
+    while i < 3:
+
+        tag = raw_input("enter the hashtag : ")
+
+        request_url = ('https://api.instagram.com/v1/tags/%s?access_token=%s') % (tag, APP_ACCESS_TOKEN)
+
+        tag_name.append(tag)
+
+        print tag_name
+
+        print 'GET request url : %s' % (request_url)
+
+        hash_items = requests.get(request_url).json()
+
+        if hash_items['meta']['code'] == 200:
+
+            if len(hash_items['data']):
+
+                print hash_items['data']['media_count']
+
+                tags.append(hash_items['data']['media_count'])
+
+                print tags
+
+                i = i + 1
 
 
-    hashtag_item = {}
+            else:
 
-    user_id= get_user_id(insta_username)
-    request_url = (BASE_URL + 'tags/%s/media/recent?access_token=%s') % {tag, APP_ACCESS_TOKEN}
-    user_media = requests.get(request_url).json()
+                print 'Status code other than 200 received!'
 
-    if user_media['meta']['code'] ==200:
-
-        for x in range(0,len(user_media['data'])):
-            print user_media['data'][x]['tag']
-            my_hashtag_len = len(user_media['data'][x]['tag'])
+        else:
+            exit()
 
 
-            for y in range(0,my_hashtag_len):
-                if user_media['data'][x]['tag'][y] in hashtag_item:
-                    hashtag_item[user_media['data'][x]['tag'][y]]= hashtag_item(user_media['data'][x]['tag'][y])+1
+def pie_chart():
+    sizes = hash_tag()
 
-                else:
-                    hashtag_item[hashtag_item(user_media['data'][x]['tag'][y])]=1
+    fig1, ax1 = plt.subplots()
 
-    else:
-        print "Code other than 200 received!"
+    ax1.pie(sizes, labels=labels, autopct='%1.1f%%', shadow=True, startangle=90)
 
-    print hashtag_item
+    ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
 
-
-#explode = (0, 0, 0, 0)
-#fig1, ax1 = plt.subplots()
-#ax1.pie(sizes, explode=explode, labels=tags, autopct='%1.1f%%', shadow=True, startangle=90)
-#ax1.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-
-#plt.show()
-
-
-
-
+    plt.show()
 
 '''
-k:Function declaration to make delete negative comments from the recent post
+delete negative comments
 '''
-
 def delete_negative_comment(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/comments/?access_token=%s') % (media_id, APP_ACCESS_TOKEN)
@@ -362,6 +383,7 @@ def delete_negative_comment(insta_username):
             print 'There are no existing comments on the post!'
     else:
         print 'Status code other than 200 received!'
+
 
 
 
@@ -398,8 +420,14 @@ def get_media_of_your_choice(insta_username):
         exit()
 
 
-
-
+'''
+m:for displaying all the comments on a post
+'''
+def list_of_comment(insta_username):
+     list = list_of_comment(insta_username)
+     print "Comments:"
+     for i in list:
+      print i[0]
 
 
 
@@ -413,7 +441,7 @@ def start_bot():
 
         print 'welcome!! to our insta_bot app'
 
-        print 'this our menu choose any option\n'
+        print 'this is our menu choose any option\n'
 
         print "a.for self info\n"
 
@@ -439,6 +467,8 @@ def start_bot():
 
         print "l.choose the post of a user of your choice\n"
 
+        print "m.for displaying all the comments on a post of a user\n"
+
         print "z.quit"
 
 
@@ -457,7 +487,8 @@ def start_bot():
 
         elif choice == "b":
 
-            insta_username = raw_input("Enter the user ")
+            insta_username = raw_input("Enter the username ")
+
 
             get_user_id(insta_username)
 
@@ -465,7 +496,7 @@ def start_bot():
 
         elif choice == "c":
 
-            self = raw_input("Enter the username ")
+            insta_username = raw_input("Enter the username ")
 
             get_user_info(insta_username)
 
@@ -522,7 +553,7 @@ def start_bot():
 
             insta_username = raw_input("Enter the username of the user: ")
 
-            list_of_hashtags(insta_username)
+            hash_tag()
 
 
 
@@ -537,6 +568,16 @@ def start_bot():
             insta_username = raw_input("Enter the username of the user: ")
 
             get_media_of_your_choice(insta_username)
+
+
+
+        elif choice == "m":
+
+            insta_username = raw_input("Enter the username of the user: ")
+
+            list_of_comment(insta_username)
+
+
 
             exit()
 
